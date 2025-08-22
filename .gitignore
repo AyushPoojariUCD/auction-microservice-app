@@ -1,6 +1,7 @@
 # Visual Studio / .NET
-.vs/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+.vscode/
+
+# Build artifacts
+bin/
+obj/
+
