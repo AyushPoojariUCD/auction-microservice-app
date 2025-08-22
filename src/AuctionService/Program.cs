@@ -8,6 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AuctionDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); // ✅ fixed here
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 app.UseAuthorization();
