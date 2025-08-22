@@ -12,9 +12,6 @@ public class CreateAuctionDto
         [Required]
         public DateTime AuctionEnd { get; set; }
 
-        [Required]
-        public string Seller { get; set; }
-
         // Item properties
         [Required]
         public string Make { get; set; }
