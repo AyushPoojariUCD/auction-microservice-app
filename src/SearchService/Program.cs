@@ -1,5 +1,6 @@
 using Polly;
 using System.Net;
+using MassTransit;
 using SearchService;
 using MongoDB.Driver;
 using MongoDB.Entities;
@@ -12,6 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
+
+builder.Services.AddMassTransit(
+    x =>
+    {
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.ConfigureEndpoints(context);
+        });
+    }
+);
 
 var app = builder.Build();
 
