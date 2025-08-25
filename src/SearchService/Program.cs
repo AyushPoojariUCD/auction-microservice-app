@@ -21,8 +21,18 @@ builder.Services.AddMassTransit(
 
         x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
 
+        
+        
         x.UsingRabbitMq((context, cfg) =>
         {
+            // Handling Fault :: MongoDB Down
+            cfg.ReceiveEndpoint("search-auction-created", e =>
+            {
+                e.UseMessageRetry(r => r.Interval(5, 5));
+
+                e.ConfigureConsumer<AuctionCreatedConsumer>(context);
+            });
+
             cfg.ConfigureEndpoints(context);
         });
     }
