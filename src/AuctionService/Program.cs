@@ -1,8 +1,13 @@
 using MassTransit;
+using Contracts;
 using AuctionService;
+using AuctionService.DTOs;
 using AuctionService.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 
 var builder = WebApplication.CreateBuilder(args);

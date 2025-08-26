@@ -1,12 +1,15 @@
+using Contracts;
 using AutoMapper;
-using AuctionService.Data;
+using MassTransit;
+using AuctionService;
 using AuctionService.DTOs;
+using AuctionService.Data;
 using AuctionService.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
-using Contracts;
-using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 namespace AuctionService.Controllers;
@@ -65,11 +68,15 @@ public class AuctionController : ControllerBase
         return Ok(_mapper.Map<AuctionDto>(auction));
     }
 
+    [Authorize]
+    [HttpPost]
     // POST: api/auctions
     [HttpPost]
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto auctionDto)
     {
         var auction = _mapper.Map<Auction>(auctionDto);
+
+        auction.Seller = User.Identity.Name;
 
         _context.Auctions.Add(auction);
 
@@ -86,16 +93,18 @@ public class AuctionController : ControllerBase
     }
 
     // PUT: api/auctions/{id}
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctiondto)
     {
-        // Fetch the auction including its Item
+
         var auction = await _context.Auctions
                 .Include(x => x.Item)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (auction == null)
-            return NotFound();
+        if (auction == null) return NotFound();
+
+        if (auction.Seller != User.Identity.Name) return Forbid();
 
         auction.Item.Make = updateAuctiondto.Make ?? auction.Item.Make;
         auction.Item.Model = updateAuctiondto.Model ?? auction.Item.Model;
@@ -113,6 +122,7 @@ public class AuctionController : ControllerBase
     }
 
     // DELETE: api/auctions/{id}
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAuction(Guid id)
     {
@@ -120,8 +130,9 @@ public class AuctionController : ControllerBase
                 .Include(x => x.Item)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (auction == null)
-            return NotFound();
+        if (auction == null) return NotFound();
+
+        if (auction.Seller != User.Identity.Name) return Forbid();
 
         _context.Auctions.Remove(auction);
 
