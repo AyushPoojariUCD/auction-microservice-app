@@ -7,7 +7,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-  
+
   mongodb:
     image: mongo
     environment:
@@ -24,6 +24,65 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  auction-svc:
+    build: 
+      context: .
+      dockerfile: src/AuctionService/Dockerfile
+    image: auction-microservice-app/auction-svc:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;http://+:7777
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;User Id=postgres;Password=postgrespw;Database=auctionsDB
+      - IdentityServiceUrl=http://identity-svc
+    ports:
+      - 7001:80
+      - 7777:7777
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  search-svc:
+    build: 
+      context: .
+      dockerfile: src/SearchService/Dockerfile
+    image: auction-microservice-app/search-svc:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__MongoDbConnection=mongodb://root:mongopw@mongodb:27017
+      - AuctionServiceUrl=http://auction-svc
+    ports:
+      - 7002:80
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  identity-svc:
+    build: 
+      context: .
+      dockerfile: src/IdentityService/Dockerfile
+    image: auction-microservice-app/identity-svc:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;User Id=postgres;Password=postgrespw;Database=identityDB
+    ports:
+      - 5000:80
+    depends_on:
+      - postgres
+
+  gateway-svc:
+    image: auction-microservice-app/gateway-svc:latest
+    build: 
+      context: .
+      dockerfile: src/GatewayService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - 6001:80
 volumes:
   pgdata:
   mongodata:
