@@ -1,11 +1,13 @@
 ﻿{
-    "https": {
+  "profiles": {
+    "GatewayService": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "applicationUrl": "https://localhost:6001",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:6001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
+  }
 }

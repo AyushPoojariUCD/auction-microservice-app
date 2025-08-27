@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

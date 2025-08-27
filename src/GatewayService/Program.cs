@@ -14,13 +14,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters.ValidateAudience = false;
         options.TokenValidationParameters.NameClaimType = "username";
-});
+    });
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Optional: test endpoint
+app.MapGet("/", () => "Hello World!");
+
+// Map reverse proxy
+app.MapReverseProxy();
 
 app.Run();
